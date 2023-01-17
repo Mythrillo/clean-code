@@ -6,14 +6,15 @@ from products.models import Product
 from sqlalchemy.orm import Session
 
 
-def get_order(db: Session, order_id: int) -> Order:
-    order = db.query(Order).filter(Order.id == order_id).first()
+def get_order(db: Session, order_id: int, user_id: int) -> Order:
+    order = db.query(Order).filter(Order.id == order_id, Order.owner_id == user_id).first()
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
     return order
 
 
-def get_order_items(db: Session, order_id: int) -> list[OrderItems]:
+def get_order_items(db: Session, order_id: int, user_id: int) -> list[OrderItems]:
+    get_order(db, order_id, user_id)
     return (
         db.query(OrderItems.amount, OrderItems.order_id, Product.id.label("product_id"), Product.title, Product.price)
         .join(Product)
@@ -22,17 +23,17 @@ def get_order_items(db: Session, order_id: int) -> list[OrderItems]:
     )
 
 
-def create_order(db: Session, order: schemas.OrderBase) -> Order:
-    db_order = Order(**order.dict())
+def create_order(db: Session, owner_id: int) -> Order:
+    db_order = Order(owner_id=owner_id)
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
     return db_order
 
 
-def delete_order(db: Session, order_id: int):
+def delete_order(db: Session, order_id: int, user_id: int):
+    order = get_order(db, order_id, user_id)
     _delete_order_items(db, order_id)
-    order = get_order(db, order_id)
     db.delete(order)
     db.commit()
 
@@ -44,8 +45,8 @@ def _delete_order_items(db: Session, order_id: int):
     db.commit()
 
 
-def add_product_to_order(db: Session, order_item: schemas.OrderItemsCreate):
-    order = get_order(db, order_item.order_id)
+def add_product_to_order(db: Session, order_item: schemas.OrderItemsCreate, user_id: int):
+    order = get_order(db, order_item.order_id, user_id)
     db_order_item = _create_or_update_order_item(db, order_item)
 
     product = get_product(db, db_order_item.product_id)

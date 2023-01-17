@@ -4,11 +4,13 @@ from pydantic import BaseModel
 
 
 class OrderBase(BaseModel):
-    owner_id: int
+    pass
 
 
 class OrderCreate(OrderBase):
     total: float
+    id: int
+    created_at: datetime
 
     class Config:
         orm_mode = True
