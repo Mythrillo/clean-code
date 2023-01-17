@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class UserBase(BaseModel):
     email: str
+    username: str
 
 
 class UserCreate(UserBase):
@@ -18,13 +19,9 @@ class User(UserBase):
 
 
 class UserInDB(UserBase):
+    id: int
     is_admin: bool
     hashed_password: str
-
-
-class ChangePassword(BaseModel):
-    old_password: str
-    new_password: str
 
 
 class Token(BaseModel):
@@ -33,4 +30,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    email: str | None = None
+    username: str | None = None

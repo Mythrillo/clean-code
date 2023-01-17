@@ -1,11 +1,12 @@
-from auth.models import User
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
+
+from auth.models import User
+from fastapi import HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from settings import JWT_SECRET, JWT_ALGORITHM
+from passlib.context import CryptContext
+from settings import JWT_ALGORITHM, JWT_SECRET
+from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -20,8 +21,8 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def authenticate_user(db: Session, email: str, password: str) -> bool | User:
-    user = db.query(User).filter(User.email == email).first()
+def authenticate_user(db: Session, username: str, password: str) -> bool | User:
+    user = db.query(User).filter(User.username == username).first()
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
