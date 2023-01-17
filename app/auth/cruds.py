@@ -1,11 +1,12 @@
 from auth import schemas
 from auth.models import User
-from auth.utils import Hash
 from sqlalchemy.orm import Session
+from auth.authentication import get_password_hash
 
 
-def get_user(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
+def get_user(db: Session, email: str) -> schemas.UserInDB:
+    user = db.query(User).filter(User.email == email).first()
+    return schemas.UserInDB(**user)
 
 
 def get_user_by_email(db: Session, email: str):
@@ -13,8 +14,7 @@ def get_user_by_email(db: Session, email: str):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = Hash.bcrypt(user.password)
-    db_user = User(email=user.email, hashed_password=hashed_password, is_admin=False)
+    db_user = User(email=user.email, hashed_password=get_password_hash(user.password), is_admin=False)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
