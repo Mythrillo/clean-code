@@ -35,3 +35,8 @@ async def get_order_products(
     order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     return cruds.get_order_items(db, order_id, current_user.id)
+
+
+@router.get("", response_model=list[schemas.OrderGet])
+async def list_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return cruds.list_orders(db, current_user.id)

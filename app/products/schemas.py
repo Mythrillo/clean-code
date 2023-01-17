@@ -15,6 +15,7 @@ class ProductCreate(ProductBase):
 class ProductUpdate(BaseModel):
     description: str
     price: float
+    title: str
 
     class Config:
         orm_mode = True

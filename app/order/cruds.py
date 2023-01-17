@@ -85,3 +85,7 @@ def _create_or_update_order_item(db: Session, order_item: schemas.OrderItemsCrea
 def _update_order(db: Session, order: schemas.OrderGet):
     db.query(Order).filter(Order.id == order.id).update(order.dict(), synchronize_session="fetch")
     db.commit()
+
+
+def list_orders(db: Session, user_id: int) -> list[Order]:
+    return db.query(Order).filter(Order.owner_id == user_id).all()
