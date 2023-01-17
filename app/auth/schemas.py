@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class UserBase(BaseModel):
     email: str
+    username: str
 
 
 class UserCreate(UserBase):
@@ -11,11 +12,22 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    is_admin: bool
 
     class Config:
         orm_mode = True
 
 
-class ChangePassword(BaseModel):
-    old_password: str
-    new_password: str
+class UserInDB(UserBase):
+    id: int
+    is_admin: bool
+    hashed_password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
