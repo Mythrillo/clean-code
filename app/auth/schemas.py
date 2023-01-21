@@ -24,11 +24,12 @@ class UserInDB(UserBase):
     hashed_password: str
 
 
-class Token(BaseModel):
+class TokenWithUserInfo(BaseModel):
     access_token: str
     token_type: str
     username: str
     email: str
+    is_admin: bool
 
 
 class TokenData(BaseModel):

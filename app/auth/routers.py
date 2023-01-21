@@ -14,14 +14,16 @@ router = APIRouter(tags=["Accounts"], prefix="/accounts")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-@router.post("/token", response_model=schemas.Token)
+@router.post("/token", response_model=schemas.TokenWithUserInfo)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise CredentialsException()
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return schemas.Token(access_token=access_token, token_type="bearer", username=user.username, email=user.email)
+    return schemas.TokenWithUserInfo(
+        access_token=access_token, token_type="bearer", username=user.username, email=user.email, is_admin=user.is_admin
+    )
 
 
 @router.post(

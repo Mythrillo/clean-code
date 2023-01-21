@@ -13,6 +13,16 @@ async def create_order(current_user: User = Depends(get_current_user), db: Sessi
     return cruds.create_order(db, current_user.id)
 
 
+@router.get("/current", response_model=schemas.OrderGet)
+async def get_current_order(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return cruds.get_current_order(db, current_user.id)
+
+
+@router.post("/current")
+async def mark_current_order_as_finished(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    cruds.finish_current_order(db, current_user.id)
+
+
 @router.get("/{order_id}", response_model=schemas.OrderGet)
 async def get_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return cruds.get_order(db, order_id, current_user.id)

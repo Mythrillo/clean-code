@@ -1,5 +1,5 @@
 from db import Base
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer
 from sqlalchemy.sql.expression import func
 
 
@@ -20,3 +20,4 @@ class Order(Base):
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     total = Column(Float, default=0)
+    is_active = Column(Boolean, default=True)

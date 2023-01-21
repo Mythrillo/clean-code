@@ -13,6 +13,18 @@ def get_order(db: Session, order_id: int, user_id: int) -> Order:
     return order
 
 
+def get_current_order(db: Session, user_id: int) -> Order:
+    order = db.query(Order).filter(Order.is_active.is_(True), Order.owner_id == user_id).first()
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active order found")
+    return order
+
+
+def finish_current_order(db: Session, user_id: int):
+    db.query(Order).filter(Order.is_active.is_(True), Order.owner_id == user_id).update({"is_active": False})
+    db.commit()
+
+
 def get_order_items(db: Session, order_id: int, user_id: int) -> list[OrderItems]:
     get_order(db, order_id, user_id)
     return (
@@ -24,11 +36,16 @@ def get_order_items(db: Session, order_id: int, user_id: int) -> list[OrderItems
 
 
 def create_order(db: Session, owner_id: int) -> Order:
-    db_order = Order(owner_id=owner_id)
-    db.add(db_order)
-    db.commit()
-    db.refresh(db_order)
-    return db_order
+    try:
+        get_current_order(db, owner_id)
+    except HTTPException:
+        db_order = Order(owner_id=owner_id)
+        db.add(db_order)
+        db.commit()
+        db.refresh(db_order)
+        return db_order
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User has an active order already")
 
 
 def delete_order(db: Session, order_id: int, user_id: int):
@@ -71,8 +88,6 @@ def _create_or_update_order_item(db: Session, order_item: schemas.OrderItemsCrea
         db_order_item = OrderItems(**order_item.dict())
         db.add(db_order_item)
     else:
-        print("Already exists")
-        print(db_order_item)
         amount = order_item.amount + db_order_item.amount
         db.query(OrderItems).filter(
             OrderItems.order_id == order_item.order_id, OrderItems.product_id == order_item.product_id

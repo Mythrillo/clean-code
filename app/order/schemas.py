@@ -23,6 +23,7 @@ class OrderWithNoUpdatedAt(OrderCreate):
 
 class OrderGet(OrderWithNoUpdatedAt):
     updated_at: datetime | None
+    is_active: bool | None
 
 
 class OrderItemsBase(BaseModel):

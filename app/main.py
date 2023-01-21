@@ -1,8 +1,8 @@
 from auth.routers import router as users_routers
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from order.routers import router as orders_routers
 from products.routers import router as products_routers
-from fastapi.middleware.cors import CORSMiddleware
 from settings import ORIGINS
 
 app = FastAPI()
