@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 router = APIRouter(tags=["Products"], prefix="/products")
 
 
-@router.get("/list", response_model=list[schemas.ProductList])
+@router.get("", response_model=list[schemas.ProductList])
 async def list_products(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return cruds.get_products(db, offset=offset, limit=limit)
 
@@ -40,7 +40,7 @@ async def create_product(
         raise HTTPException(status_code=403, detail="Not an admin user!")
 
 
-@router.put("/{product_id}")
+@router.patch("/{product_id}")
 async def update_product(
     product_id: int,
     product: schemas.ProductUpdate,

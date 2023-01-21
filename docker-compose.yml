@@ -17,6 +17,14 @@ services:
       JWT_SECRET: secret
     depends_on:
       - db
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 8081:8081
   db:
     image: postgres:14
     volumes:
